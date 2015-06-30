@@ -10,8 +10,8 @@ from lists.forms import ItemForm
 # Create your views here.
 def new_list(request):
     list_ = List.objects.create()
-    item_text = request.POST['item_text']
-    item = Item(text=item_text, list=list_)
+    text = request.POST['text']
+    item = Item(text=text, list=list_)
 
     try:
         item.full_clean()
@@ -27,8 +27,8 @@ def view_list(request, list_id):
     list_ = List.objects.get(id=list_id)
 
     if request.method == 'POST':
-        item_text = request.POST['item_text']
-        item = Item(text=item_text, list=list_)
+        text = request.POST['text']
+        item = Item(text=text, list=list_)
         try:
             item.full_clean()
             item.save()

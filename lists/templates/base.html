@@ -16,11 +16,6 @@
                     <h1>{% block header_text %}{% endblock %}</h1>
                     <form method="POST" action="{% block form_action %}{% endblock %}">
                         {{ form.text }}
-                        <!--
-                        <input name="item_text" id="id_new_item"
-                               class="form-control input-lg"
-                               placeholder="Enter a to-do item">
-                        -->
                         {% csrf_token %}
                         {% if form.errors %}
                             <div class="form-group has-error">
@@ -39,5 +34,7 @@
                 </div>
             </div>
         </div>
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="/static/list.js"></script>
     </body>
 </html>

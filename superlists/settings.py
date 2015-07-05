@@ -81,4 +81,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
+STATIC_ROOT = os.path.join(BASE_DIR, '../static')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'superlists', 'static'),
+)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+        },
+    },
+    'root': {'level': 'INFO'},
+}

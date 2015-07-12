@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Creates a pre-authenticated session for user with specified e-mail'
 
     def add_arguments(self, parser):
-        parser.add_arguments('e-mail', type=str)
+        parser.add_argument('email', type=str)
 
     def handle(self, *args, **options):
         session_key = create_pre_authenticated_session(options['email'])

@@ -7,14 +7,14 @@ def create_session_on_server(host, email):
         [
             'fab',
             'create_session_on_server:{}'.format(email),
-            '--host={}'.format(host),
+            '--host=elspeth@{}'.format(host),
             '--hide=everything,status',
         ],
         cwd=THIS_FOLDER
     ).decode().strip()
 
 def reset_database(host):
-    subprocess.check_all(
-        ['fab', 'reset_database', '--host={}'.format(host)],
+    subprocess.check_call(
+        ['fab', 'reset_database', '--host=elspeth@{}'.format(host)],
         cwd=THIS_FOLDER
     )

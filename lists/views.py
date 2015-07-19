@@ -41,3 +41,13 @@ def my_lists(request, email):
         owner = None
 
     return render(request, 'my_lists.html', {'owner': owner})
+
+def share_list(request, list_id):
+    list_ = List.objects.get(id=list_id)
+    try:
+        sharee = User.objects.get(email=request.POST['email'])
+        list_.shared_with.add(sharee)
+    except User.DoesNotExist:
+        print("sharee not found:" + request.POST['email'])
+
+    return redirect(list_)

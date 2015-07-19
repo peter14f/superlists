@@ -12,3 +12,14 @@
         {% endfor %}
     </ul>
 {% endblock %}
+
+{% block extra_content2 %}
+    <h3>List shared with me</h3>
+    <ul>
+        {% for sharer_list in owner.sharee_lists.all %}
+            <ul>
+                <a href={% url 'view_list' sharer_list.id %}>{{ sharer_list.name }}</a>
+            </ul>
+        {% endfor %}
+    </ul>
+{% endblock %}

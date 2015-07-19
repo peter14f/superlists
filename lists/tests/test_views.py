@@ -1,14 +1,14 @@
 from unittest import skip
 from unittest.mock import Mock, patch
 
-from django.core.urlresolvers import  resolve
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.contrib.auth import get_user_model
 
-from lists.views import home_page, new_list
+from lists.views import home_page, new_list, view_list
 from lists.models import Item, List
 from lists.forms import (
     DUPLICATE_ITEM_ERROR, EMPTY_LIST_ERROR,
@@ -270,6 +270,50 @@ class ListViewTest(TestCase):
         self.assertIsInstance(response.context['form'], ExistingListItemForm)
         self.assertContains(response, 'name="text"')
 
+    def test_displays_sharee_to_owner(self):
+        owner = User.objects.create(email="a@b.com")
+        list_ = List.create_new('item 1', owner=owner)
+        sharee = User.objects.create(email="c@d.com")
+        list_.shared_with.add(sharee)
+        request = HttpRequest()
+        request.user = owner
+        response = view_list(request, list_.id)
+        self.assertContains(response, 'c@d.com')
+
+    def test_non_owner_cannot_see_sharee(self):
+        owner = User.objects.create(email="a@b.com")
+        list_ = List.create_new('item 1', owner=owner)
+        sharee = User.objects.create(email="c@d.com")
+        list_.shared_with.add(sharee)
+        request = HttpRequest()
+        request.user = sharee
+        response = view_list(request, list_.id)
+        self.assertContains(response, 'c@d.com')
+
+    def test_sharee_see_sharer(self):
+        owner = User.objects.create(email="a@b.com")
+        list_ = List.create_new('item 1', owner=owner)
+        sharee = User.objects.create(email="c@d.com")
+        list_.shared_with.add(sharee)
+        request = HttpRequest()
+        request.user = sharee
+        response = view_list(request, list_.id)
+        self.assertContains(response, 'a@b.com')
+
+    @skip
+    def test_other_dont_see_sharee(self):
+        owner = User(email="owner@a.com")
+        list_ = List.objects.create()
+        list_.owner = owner
+        sharee = User.objects.create(email="a@b.com")
+        list_.shared_with.add(sharee)
+        request = HttpRequest()
+        request.user = sharee
+
+        response = view_list(request, list_.id)
+
+        self.assertNotContains(response, 'a@b.com')
+
 class HomePageTest(TestCase):
 
     def test_home_page_renders_home_template(self):
@@ -291,3 +335,26 @@ class MyListsTest(TestCase):
         correct_user = User.objects.create(email='a@b.com')
         response = self.client.get('/lists/users/a@b.com/')
         self.assertEqual(response.context['owner'], correct_user)
+
+class ShareListTest(TestCase):
+
+    def test_post_redirects_to_lists_page(self):
+        list_ = List.objects.create()
+        sharee = User.objects.create(email='a@b.com')
+        response = self.client.post(
+            '/lists/%d/share' % list_.id,
+            data={'email': 'a@b.com'}
+        )
+        self.assertRedirects(response, '/lists/%d/' % list_.id)
+
+    def test_post_add_email_to_shared_with(self):
+        list_ = List.objects.create()
+        sharee = User.objects.create(email='a@b.com')
+        self.client.post(
+            "/lists/%d/share" % list_.id,
+            data={'email': sharee.email}
+        )
+        self.assertIn(
+            sharee,
+            list_.shared_with.all()
+        )

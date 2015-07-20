@@ -300,19 +300,16 @@ class ListViewTest(TestCase):
         response = view_list(request, list_.id)
         self.assertContains(response, 'a@b.com')
 
-    @skip
-    def test_other_dont_see_sharee(self):
-        owner = User(email="owner@a.com")
-        list_ = List.objects.create()
-        list_.owner = owner
-        sharee = User.objects.create(email="a@b.com")
-        list_.shared_with.add(sharee)
-        request = HttpRequest()
-        request.user = sharee
+    def test_see_anonymous_owner(self):
+        list_ = List.create_new('item 1')
+        response = self.client.get('/lists/%d/' % (list_.id,))
+        self.assertContains(response, 'Anonymous User')
 
-        response = view_list(request, list_.id)
-
-        self.assertNotContains(response, 'a@b.com')
+    def test_sees_non_anonymous_owner(self):
+        owner = User.objects.create(email='a@b.com')
+        list_ = List.create_new('item 1', owner=owner)
+        response = self.client.get('/lists/%d/' % (list_.id,))
+        self.assertContains(response, 'a@b.com')
 
 class HomePageTest(TestCase):
 

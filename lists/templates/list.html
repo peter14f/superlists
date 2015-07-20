@@ -5,12 +5,16 @@
 {% block form_action %}{% url 'view_list' list.id  %}{% endblock %}
 
 {% block table %}
-{% if user != list.owner %}
-    <div>
-        <span class="h6">list created by:</span>
-        <span class="h6 text-success" id="id_list_owner">{{ list.owner.email }}</span>
-    </div>
+<div>
+    <span class="h6">list created by:</span>
+{% if not list.owner %}
+    <span class="h6 text-danger" id="id_list_owner">Anonymous User</span>
+{% elif user != list.owner %}
+    <span class="h6 text-warning" id="id_list_owner">{{ list.owner.email }}</span>
+{% else %}
+    <span class="h6 text-success" id="id_list_owner">{{ list.owner.email }}</span>
 {% endif %}
+</div>
 <table class="table" id="id_list_table">
     {% for item in list.item_set.all %}
         <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>

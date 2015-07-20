@@ -6,7 +6,10 @@
 
 {% block table %}
 {% if user != list.owner %}
-    <h6 id="id_list_owner">{{ list.owner.email }}</h6>
+    <div>
+        <span class="h6">list created by:</span>
+        <span class="h6 text-success" id="id_list_owner">{{ list.owner.email }}</span>
+    </div>
 {% endif %}
 <table class="table" id="id_list_table">
     {% for item in list.item_set.all %}

@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+assert 'SUPERLISTS_DB' in os.environ, 'SUPERLISTS_DB not set'
+assert 'SUPERLISTS_DB_USERNAME' in os.environ, 'SUPERLISTS_DB_USERNAME not set'
+assert 'SUPERLISTS_DB_PASSWORD' in os.environ, 'SUPERLISTS_DB_PASSWORD not set'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -64,11 +67,14 @@ WSGI_APPLICATION = 'superlists.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '../database/db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('SUPERLISTS_DB'),
+        'USER': os.environ.get('SUPERLISTS_DB_USERNAME'),
+        'PASSWORD': os.environ.get('SUPERLISTS_DB_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': ''
     }
 }
 
@@ -103,16 +109,21 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, '../logging'),
+        },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
         },
         'accounts':{
-            'handlers': ['console']
+            'handlers': ['console'],
         },
         'lists': {
-            'handlers': ['console']
+            'handlers': ['console', 'file'],
         },
     },
     'root': {'level': 'INFO'},
